@@ -85,11 +85,15 @@ class SimpMusicApplication :
             .restartActivity(MainActivity::class.java) // default: null (your app's launch activity)
             .apply()
 
-        @SuppressLint("DiscouragedPrivateApi")
-        val field: Field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
-        field.isAccessible = true
-        val expectSize = 100 * 1024 * 1024
-        field.set(null, expectSize)
+        try {
+            @SuppressLint("DiscouragedPrivateApi")
+            val field: Field = CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
+            field.isAccessible = true
+            val expectSize = 100 * 1024 * 1024
+            field.set(null, expectSize)
+        } catch (e: Throwable) {
+            Logger.e("SimpMusicApplication", "CursorWindow size adjust failed: ${e.message}")
+        }
 
         AppContext.apply {
             set(applicationContext)

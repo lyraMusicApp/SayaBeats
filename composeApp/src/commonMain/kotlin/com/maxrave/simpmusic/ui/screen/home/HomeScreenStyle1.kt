@@ -367,7 +367,7 @@ fun HomeScreenStyle1(
             // Song list items in frosted glass card rows
             val songItems = homeData.flatMap { it.contents }.filterNotNull().take(15)
             if (songItems.isNotEmpty()) {
-                itemsIndexed(songItems, key = { index, item -> "style1_song_${item.videoId ?: index}" }) { index, song ->
+                itemsIndexed(songItems, key = { index, item -> "style1_song_${item.videoId}_$index" }) { index, song ->
                     val isPlayingThis = nowPlayingData?.track?.videoId == song.videoId
                     val isCurrentPlaying = isPlayingThis && controllerState.isPlaying
 

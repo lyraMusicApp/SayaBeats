@@ -126,7 +126,7 @@ fun HomeScreenStyle2(
 
             // Minimalist Song List with clean dividers
             if (songItems.isNotEmpty()) {
-                itemsIndexed(songItems, key = { index, item -> "style2_song_${item.videoId ?: index}" }) { index, song ->
+                itemsIndexed(songItems, key = { index, item -> "style2_song_${item.videoId}_$index" }) { index, song ->
                     val isPlayingThis = nowPlayingData?.track?.videoId == song.videoId
                     val isCurrentPlaying = isPlayingThis && controllerState.isPlaying
                     val duration = "03:${(20 + (index * 7) % 39).toString().padStart(2, '0')}"

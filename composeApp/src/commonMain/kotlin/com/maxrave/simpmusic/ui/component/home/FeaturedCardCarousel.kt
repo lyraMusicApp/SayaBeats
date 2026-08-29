@@ -96,7 +96,7 @@ fun FeaturedCardCarousel(
                 .fillMaxWidth()
                 .height(180.dp)
         ) { page ->
-            val card = cards[page]
+            val card = cards.getOrNull(page) ?: return@HorizontalPager
             FeaturedCardItem(
                 card = card,
                 onClick = {
