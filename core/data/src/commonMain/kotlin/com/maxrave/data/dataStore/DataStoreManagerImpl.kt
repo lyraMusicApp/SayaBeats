@@ -1367,6 +1367,32 @@ internal class DataStoreManagerImpl(
         }
     }
 
+    override val homePageStyle: Flow<Int> =
+        settingsDataStore.data.map { preferences ->
+            preferences[HOME_PAGE_STYLE] ?: 1
+        }
+
+    override suspend fun setHomePageStyle(style: Int) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[HOME_PAGE_STYLE] = style
+            }
+        }
+    }
+
+    override val playerStyle: Flow<Int> =
+        settingsDataStore.data.map { preferences ->
+            preferences[PLAYER_STYLE] ?: 1
+        }
+
+    override suspend fun setPlayerStyle(style: Int) {
+        withContext(Dispatchers.IO) {
+            settingsDataStore.edit { settings ->
+                settings[PLAYER_STYLE] = style
+            }
+        }
+    }
+
     companion object Settings {
         val APP_VERSION = stringPreferencesKey("app_version")
         val COOKIE = stringPreferencesKey("cookie")
@@ -1463,6 +1489,9 @@ internal class DataStoreManagerImpl(
         val AUTO_BACKUP_FREQUENCY = stringPreferencesKey("auto_backup_frequency")
         val AUTO_BACKUP_MAX_FILES = intPreferencesKey("auto_backup_max_files")
         val AUTO_BACKUP_LAST_TIME = longPreferencesKey("auto_backup_last_time")
+
+        val HOME_PAGE_STYLE = intPreferencesKey("home_page_style")
+        val PLAYER_STYLE = intPreferencesKey("player_style")
     }
 }
 

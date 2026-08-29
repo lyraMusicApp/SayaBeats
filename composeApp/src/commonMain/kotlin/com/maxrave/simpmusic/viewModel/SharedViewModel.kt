@@ -207,6 +207,8 @@ class SharedViewModel(
     val likeStatus: StateFlow<Boolean> = _likeStatus
 
     val openAppTime: StateFlow<Int> = dataStoreManager.openAppTime.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 0)
+    val homePageStyle: StateFlow<Int> = dataStoreManager.homePageStyle.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
+    val playerStyle: StateFlow<Int> = dataStoreManager.playerStyle.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000L), 1)
     private val _shareSavedLyrics: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val shareSavedLyrics: StateFlow<Boolean> get() = _shareSavedLyrics
 

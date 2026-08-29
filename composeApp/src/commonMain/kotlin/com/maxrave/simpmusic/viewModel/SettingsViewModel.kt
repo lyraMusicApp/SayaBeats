@@ -194,6 +194,12 @@ class SettingsViewModel(
     private val _autoBackupLastTime = MutableStateFlow<Long>(0L)
     val autoBackupLastTime: StateFlow<Long> = _autoBackupLastTime
 
+    private val _homePageStyle = MutableStateFlow<Int>(1)
+    val homePageStyle: StateFlow<Int> = _homePageStyle
+
+    private val _playerStyle = MutableStateFlow<Int>(1)
+    val playerStyle: StateFlow<Int> = _playerStyle
+
     private var _alertData: MutableStateFlow<SettingAlertState?> = MutableStateFlow(null)
     val alertData: StateFlow<SettingAlertState?> = _alertData
 
@@ -283,12 +289,44 @@ class SettingsViewModel(
         getAutoBackupFrequency()
         getAutoBackupMaxFiles()
         getAutoBackupLastTime()
+        getHomePageStyle()
+        getPlayerStyle()
         viewModelScope.launch {
             calculateDataFraction(
                 cacheRepository,
             )?.let {
                 _fraction.value = it
             }
+        }
+    }
+
+    private fun getHomePageStyle() {
+        viewModelScope.launch {
+            dataStoreManager.homePageStyle.collect { style ->
+                _homePageStyle.value = style
+            }
+        }
+    }
+
+    fun setHomePageStyle(style: Int) {
+        viewModelScope.launch {
+            dataStoreManager.setHomePageStyle(style)
+            getHomePageStyle()
+        }
+    }
+
+    private fun getPlayerStyle() {
+        viewModelScope.launch {
+            dataStoreManager.playerStyle.collect { style ->
+                _playerStyle.value = style
+            }
+        }
+    }
+
+    fun setPlayerStyle(style: Int) {
+        viewModelScope.launch {
+            dataStoreManager.setPlayerStyle(style)
+            getPlayerStyle()
         }
     }
 

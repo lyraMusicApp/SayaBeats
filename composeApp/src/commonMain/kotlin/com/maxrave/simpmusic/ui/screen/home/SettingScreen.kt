@@ -463,6 +463,9 @@ fun SettingScreen(
     val crossfadeDuration by viewModel.crossfadeDuration.collectAsStateWithLifecycle()
     val crossfadeDjMode by viewModel.crossfadeDjMode.collectAsStateWithLifecycle()
 
+    val homePageStyle by viewModel.homePageStyle.collectAsStateWithLifecycle()
+    val playerStyle by viewModel.playerStyle.collectAsStateWithLifecycle()
+
     val isCheckingUpdate by sharedViewModel.isCheckingUpdate.collectAsStateWithLifecycle()
 
     val hazeState =
@@ -518,6 +521,58 @@ fun SettingScreen(
             Column {
                 Spacer(Modifier.height(16.dp))
                 Text(text = stringResource(Res.string.user_interface), style = typo().labelMedium, color = white)
+                SettingItem(
+                    title = "Homepage Layout Style",
+                    subtitle = if (homePageStyle == 1) "Style 1: Curated Carousel & Glass Nav" else "Style 2: Sleek List & Mini-Player Dock",
+                    onClick = {
+                        viewModel.setAlertData(
+                            SettingAlertState(
+                                title = "Homepage Layout Style",
+                                selectOne = SettingAlertState.SelectData(
+                                    listSelect = listOf(
+                                        (homePageStyle == 1) to "Style 1: Curated Carousel & Glass Nav",
+                                        (homePageStyle == 2) to "Style 2: Sleek List & Mini-Player Dock"
+                                    )
+                                ),
+                                confirm = "Select" to { state ->
+                                    val selected = state.selectOne?.getSelected()
+                                    if (selected?.startsWith("Style 1") == true) {
+                                        viewModel.setHomePageStyle(1)
+                                    } else {
+                                        viewModel.setHomePageStyle(2)
+                                    }
+                                },
+                                dismiss = "Cancel"
+                            )
+                        )
+                    }
+                )
+                SettingItem(
+                    title = "Player Screen Style",
+                    subtitle = if (playerStyle == 1) "Style 1: Arcane Vinyl Disc Ring" else "Style 2: Skin Coverflow Glass Lens",
+                    onClick = {
+                        viewModel.setAlertData(
+                            SettingAlertState(
+                                title = "Player Screen Style",
+                                selectOne = SettingAlertState.SelectData(
+                                    listSelect = listOf(
+                                        (playerStyle == 1) to "Style 1: Arcane Vinyl Disc Ring",
+                                        (playerStyle == 2) to "Style 2: Skin Coverflow Glass Lens"
+                                    )
+                                ),
+                                confirm = "Select" to { state ->
+                                    val selected = state.selectOne?.getSelected()
+                                    if (selected?.startsWith("Style 1") == true) {
+                                        viewModel.setPlayerStyle(1)
+                                    } else {
+                                        viewModel.setPlayerStyle(2)
+                                    }
+                                },
+                                dismiss = "Cancel"
+                            )
+                        )
+                    }
+                )
                 SettingItem(
                     title = stringResource(Res.string.translucent_bottom_navigation_bar),
                     subtitle = stringResource(Res.string.you_can_see_the_content_below_the_bottom_bar),

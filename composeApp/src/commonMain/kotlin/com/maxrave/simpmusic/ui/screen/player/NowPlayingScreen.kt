@@ -2,6 +2,8 @@
 
 package com.maxrave.simpmusic.ui.screen.player
 
+import com.maxrave.common.Config
+
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -758,6 +760,61 @@ fun NowPlayingScreenContent(
         rememberHazeState(
             blurEnabled = true,
         )
+
+    val playerStyle by sharedViewModel.playerStyle.collectAsStateWithLifecycle()
+
+    when (playerStyle) {
+        1 -> {
+            PlayerStyle1Arcane(
+                track = nowPlayingState?.track,
+                timeline = timelineState,
+                isPlaying = controllerState.isPlaying,
+                queueTracks = artworkQueue,
+                currentQueueIndex = currentOrderIndex,
+                isShuffle = controllerState.isShuffle,
+                repeatMode = controllerState.repeatState,
+                onPlayPause = { sharedViewModel.onUIEvent(UIEvent.PlayPause) },
+                onNext = { sharedViewModel.onUIEvent(UIEvent.Next) },
+                onPrevious = { sharedViewModel.onUIEvent(UIEvent.Previous) },
+                onSeek = { fraction -> sharedViewModel.onUIEvent(UIEvent.UpdateProgress(fraction)) },
+                onToggleShuffle = { sharedViewModel.onUIEvent(UIEvent.Shuffle) },
+                onToggleRepeat = { sharedViewModel.onUIEvent(UIEvent.Repeat) },
+                onDismiss = onDismiss,
+                onTrackSelect = { index ->
+                    artworkQueue.getOrNull(index)?.let {
+                        sharedViewModel.loadMediaItem(it, Config.SONG_CLICK, index = index)
+                    }
+                },
+            )
+            return
+        }
+        2 -> {
+            PlayerStyle2Skin(
+                track = nowPlayingState?.track,
+                timeline = timelineState,
+                isPlaying = controllerState.isPlaying,
+                queueTracks = artworkQueue,
+                currentQueueIndex = currentOrderIndex,
+                isShuffle = controllerState.isShuffle,
+                repeatMode = controllerState.repeatState,
+                isLiked = likeStatus,
+                onLikeClick = { sharedViewModel.onUIEvent(UIEvent.ToggleLike) },
+                onPlayPause = { sharedViewModel.onUIEvent(UIEvent.PlayPause) },
+                onNext = { sharedViewModel.onUIEvent(UIEvent.Next) },
+                onPrevious = { sharedViewModel.onUIEvent(UIEvent.Previous) },
+                onSeek = { fraction -> sharedViewModel.onUIEvent(UIEvent.UpdateProgress(fraction)) },
+                onToggleShuffle = { sharedViewModel.onUIEvent(UIEvent.Shuffle) },
+                onToggleRepeat = { sharedViewModel.onUIEvent(UIEvent.Repeat) },
+                onDismiss = onDismiss,
+                onTrackSelect = { index ->
+                    artworkQueue.getOrNull(index)?.let {
+                        sharedViewModel.loadMediaItem(it, Config.SONG_CLICK, index = index)
+                    }
+                },
+            )
+            return
+        }
+    }
 
     if (screenDataState.lyricsData != null && controllerState.isPlaying) {
         KeepScreenOn()

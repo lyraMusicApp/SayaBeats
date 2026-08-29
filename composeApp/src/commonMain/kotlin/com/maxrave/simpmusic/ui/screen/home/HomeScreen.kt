@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
@@ -452,8 +453,7 @@ fun HomeScreen(
                         Text(stringResource(Res.string.do_not_show_again))
                     }
                 }
-            },
-            confirmButton = {
+            },            confirmButton = {
                 TextButton(onClick = {
                     viewModel.doneShowLogInAlert(doNotShowAgain)
                     navController.navigate(LoginDestination)
@@ -474,10 +474,13 @@ fun HomeScreen(
         )
     }
 
-    Box {
+    val homePageStyle by sharedViewModel.homePageStyle.collectAsStateWithLifecycle()
+
+    Box(modifier = Modifier.fillMaxSize()) {
         PullToRefreshBox(
             modifier =
                 Modifier
+                    .fillMaxSize()
                     .hazeSource(hazeState),
             state = pullToRefreshState,
             onRefresh = onRefresh,
@@ -501,332 +504,36 @@ fun HomeScreen(
                 )
             },
         ) {
-            Crossfade(targetState = loading, label = "Home Shimmer") { loading ->
-                if (!loading) {
-                    if (homeData.isEmpty()) {
-                        OfflineErrorState(
-                            onRetry = onRefresh,
-                            onOpenDownloaded = {
-                                navController.navigate(
-                                    LibraryDynamicPlaylistDestination(
-                                        type = LibraryDynamicPlaylistType.Downloaded.toStringParams(),
-                                    ),
-                                )
-                            },
-                        )
-                        return@Crossfade
-                    }
-                    LazyColumn(
-                        state = scrollState,
-                        verticalArrangement = Arrangement.spacedBy(28.dp),
-                    ) {
-                        itemsIndexed(homeData, key = { _, item ->
-                            item.hashCode().toString() + (mainHomeThumbnail ?: "nothumb")
-                        }) { index, item ->
-                            Box {
-                                if (index == 0) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(300.dp)
-                                                .angledGradientBackground(listOf(animatedColor, md_theme_dark_background), 25f),
-                                    ) {
-                                        Box(
-                                            modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .height(180.dp)
-                                                    .align(Alignment.BottomCenter)
-                                                    .background(
-                                                        brush =
-                                                            Brush.verticalGradient(
-                                                                listOf(
-                                                                    Color.Transparent,
-                                                                    Color(0x75000000),
-                                                                    Color.Black,
-                                                                ),
-                                                            ),
-                                                    ),
-                                        )
-                                    }
-                                }
-                                Column(
-                                    modifier =
-                                        Modifier
-                                            .padding(horizontal = 15.dp),
-                                ) {
-                                    if (index == 0) {
-                                        Spacer(
-                                            Modifier.height(
-                                                with(LocalDensity.current) { topAppBarHeightPx.toDp() },
-                                            ),
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    if (index == 0 && accountInfo != null && accountShow) {
-                                        AccountLayout(
-                                            accountName = accountInfo?.first ?: "",
-                                            url = accountInfo?.second ?: "",
-                                        )
-                                        Spacer(Modifier.height(8.dp))
-                                    }
-                                    if (item.title == stringResource(Res.string.quick_picks)) {
-                                        AnimatedVisibility(
-                                            visible =
-                                                homeData.find {
-                                                    it.title ==
-                                                        stringResource(
-                                                            Res.string.quick_picks,
-                                                        )
-                                                } != null,
-                                        ) {
-                                            QuickPicks(
-                                                homeItem =
-                                                    (
-                                                        homeData.find {
-                                                            it.title ==
-                                                                stringResource(
-                                                                    Res.string.quick_picks,
-                                                                )
-                                                        } ?: return@AnimatedVisibility
-                                                    ).let { content ->
-                                                        content.copy(
-                                                            contents =
-                                                                content.contents.mapNotNull { ct ->
-                                                                    ct?.copy(
-                                                                        artists =
-                                                                            ct.artists?.let { art ->
-                                                                                if (art.size > 1) {
-                                                                                    art.dropLast(1)
-                                                                                } else {
-                                                                                    art
-                                                                                }
-                                                                            },
-                                                                    )
-                                                                },
-                                                        )
-                                                    },
-                                                viewModel = viewModel,
-                                            )
-                                        }
-                                    } else {
-                                        HomeItem(
-                                            navController = navController,
-                                            data = item,
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        item {
-                            AnimatedVisibility(
-                                homeListState == ListState.PAGINATING,
-                                enter = expandVertically() + expandVertically(),
-                                exit = fadeOut() + shrinkVertically(),
-                            ) {
-                                CenterLoadingBox(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .height(200.dp),
-                                )
-                            }
-                        }
-                        if (homeListState == ListState.PAGINATION_EXHAUST) {
-                            items(newRelease, key = { it.hashCode() }) {
-                                AnimatedVisibility(
-                                    visible = newRelease.isNotEmpty(),
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .padding(horizontal = 15.dp),
-                                    ) {
-                                        HomeItem(
-                                            navController = navController,
-                                            data = it,
-                                        )
-                                    }
-                                }
-                            }
-                            item {
-                                AnimatedVisibility(
-                                    visible = moodMomentAndGenre != null,
-                                ) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .padding(horizontal = 15.dp),
-                                    ) {
-                                        moodMomentAndGenre?.let {
-                                            MoodMomentAndGenre(
-                                                mood = it,
-                                                navController = navController,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            item {
-                                Column(
-                                    Modifier
-                                        .padding(vertical = 10.dp)
-                                        .padding(horizontal = 15.dp),
-                                    verticalArrangement = Arrangement.SpaceBetween,
-                                ) {
-                                    ChartTitle()
-                                    Spacer(modifier = Modifier.height(5.dp))
-                                    Crossfade(targetState = regionChart) {
-                                        Logger.w("HomeScreen", "regionChart: $it")
-                                        if (it != null) {
-                                            DropdownButton(
-                                                items = CHART_SUPPORTED_COUNTRY.itemsData.toList(),
-                                                defaultSelected =
-                                                    CHART_SUPPORTED_COUNTRY.itemsData.getOrNull(
-                                                        CHART_SUPPORTED_COUNTRY.items.indexOf(it),
-                                                    )
-                                                        ?: CHART_SUPPORTED_COUNTRY.itemsData[1],
-                                            ) {
-                                                viewModel.exploreChart(
-                                                    CHART_SUPPORTED_COUNTRY.items[
-                                                        CHART_SUPPORTED_COUNTRY.itemsData.indexOf(
-                                                            it,
-                                                        ),
-                                                    ],
-                                                )
-                                            }
-                                        }
-                                    }
-                                    Spacer(modifier = Modifier.height(5.dp))
-                                    Crossfade(
-                                        targetState = chartLoading,
-                                        label = "Chart",
-                                    ) { loading ->
-                                        if (!loading) {
-                                            chart?.let {
-                                                ChartData(
-                                                    chart = it,
-                                                    navController = navController,
-                                                )
-                                            }
-                                        } else {
-                                            CenterLoadingBox(
-                                                modifier =
-                                                    Modifier
-                                                        .fillMaxWidth()
-                                                        .height(400.dp),
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        item {
-                            EndOfPage()
-                        }
-                    }
-                } else {
-                    Column {
-                        Spacer(
-                            Modifier.height(
-                                with(LocalDensity.current) {
-                                    topAppBarHeightPx.toDp()
-                                },
-                            ),
-                        )
-                        HomeShimmer()
-                    }
-                }
-            }
-        }
-        AnimatedContent(
-            targetState = scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0,
-            transitionSpec = {
-                fadeIn(tween(300)).togetherWith(fadeOut(tween(300)))
-            },
-        ) { target ->
-            Column(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .then(
-                            if (target) {
-                                Modifier.background(Color.Transparent)
-                            } else {
-                                Modifier
-                                    .hazeEffect(hazeState, style = HazeMaterials.ultraThin()) {
-                                        blurEnabled = true
-                                    }
-                            },
-                        ).onGloballyPositioned { coordinates ->
-                            topAppBarHeightPx = coordinates.size.height
-                        },
-            ) {
-                AnimatedVisibility(
-                    visible = isScrollingUp,
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically(),
-                ) {
-                    HomeTopAppBar(navController)
-                }
-                AnimatedVisibility(
-                    visible = !isScrollingUp,
-                    enter = fadeIn() + expandVertically(),
-                    exit = fadeOut() + shrinkVertically(),
-                ) {
-                    Spacer(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .windowInsetsPadding(
-                                    WindowInsets.statusBars,
-                                ),
+            when (homePageStyle) {
+                1 -> {
+                    HomeScreenStyle1(
+                        navController = navController,
+                        viewModel = viewModel,
+                        sharedViewModel = sharedViewModel,
+                        scrollState = scrollState,
+                        onRefresh = onRefresh,
+                        isRefreshing = isRefreshing,
                     )
                 }
-                Row(
-                    modifier =
-                        Modifier
-                            .horizontalScroll(chipRowState)
-                            .padding(vertical = 8.dp, horizontal = 15.dp)
-                            .background(Color.Transparent),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    listOfHomeChip.forEach { id ->
-                        val isSelected =
-                            when (params) {
-                                HOME_PARAMS_RELAX -> id == Res.string.relax
-                                HOME_PARAMS_SLEEP -> id == Res.string.sleep
-                                HOME_PARAMS_ENERGIZE -> id == Res.string.energize
-                                HOME_PARAMS_SAD -> id == Res.string.sad
-                                HOME_PARAMS_ROMANCE -> id == Res.string.romance
-                                HOME_PARAMS_FEEL_GOOD -> id == Res.string.feel_good
-                                HOME_PARAMS_WORKOUT -> id == Res.string.workout
-                                HOME_PARAMS_PARTY -> id == Res.string.party
-                                HOME_PARAMS_COMMUTE -> id == Res.string.commute
-                                HOME_PARAMS_FOCUS -> id == Res.string.focus
-                                else -> id == Res.string.all
-                            }
-                        Chip(
-                            isAnimated = loading,
-                            isSelected = isSelected,
-                            text = stringResource(id),
-                        ) {
-                            when (id) {
-                                Res.string.all -> viewModel.setParams(null)
-                                Res.string.relax -> viewModel.setParams(HOME_PARAMS_RELAX)
-                                Res.string.sleep -> viewModel.setParams(HOME_PARAMS_SLEEP)
-                                Res.string.energize -> viewModel.setParams(HOME_PARAMS_ENERGIZE)
-                                Res.string.sad -> viewModel.setParams(HOME_PARAMS_SAD)
-                                Res.string.romance -> viewModel.setParams(HOME_PARAMS_ROMANCE)
-                                Res.string.feel_good -> viewModel.setParams(HOME_PARAMS_FEEL_GOOD)
-                                Res.string.workout -> viewModel.setParams(HOME_PARAMS_WORKOUT)
-                                Res.string.party -> viewModel.setParams(HOME_PARAMS_PARTY)
-                                Res.string.commute -> viewModel.setParams(HOME_PARAMS_COMMUTE)
-                                Res.string.focus -> viewModel.setParams(HOME_PARAMS_FOCUS)
-                            }
-                        }
-                    }
+                2 -> {
+                    HomeScreenStyle2(
+                        navController = navController,
+                        viewModel = viewModel,
+                        sharedViewModel = sharedViewModel,
+                        scrollState = scrollState,
+                        onRefresh = onRefresh,
+                        isRefreshing = isRefreshing,
+                    )
+                }
+                else -> {
+                    HomeScreenStyle1(
+                        navController = navController,
+                        viewModel = viewModel,
+                        sharedViewModel = sharedViewModel,
+                        scrollState = scrollState,
+                        onRefresh = onRefresh,
+                        isRefreshing = isRefreshing,
+                    )
                 }
             }
         }

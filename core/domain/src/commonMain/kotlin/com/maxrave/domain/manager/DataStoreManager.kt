@@ -344,6 +344,15 @@ interface DataStoreManager {
 
     suspend fun setAutoBackupLastTime(time: Long)
 
+    // Homepage and Player style switchers
+    val homePageStyle: Flow<Int>
+
+    suspend fun setHomePageStyle(style: Int)
+
+    val playerStyle: Flow<Int>
+
+    suspend fun setPlayerStyle(style: Int)
+
     enum class ProxyType {
         PROXY_TYPE_HTTP,
         PROXY_TYPE_SOCKS,
