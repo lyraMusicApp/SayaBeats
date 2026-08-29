@@ -42,7 +42,8 @@ Saya Beats v1.3.0 features a comprehensive Liquid Glass (Glassmorphism) UI redes
 ---
 
 ## Build and Verification
-- Target: Android (Universal)
+- Target: Android (ARM64-v8a & Universal)
 - Build Mode: Release (Signed, Not Debug)
 - Signature Scheme: v2 and v3 verified
-- Package File: `SayaBeats-v1.3.0-release-signed.apk` (76.4 MB)
+- Primary Package File: `SayaBeats-v1.3.0-release-signed.apk` (49.9 MB)
+- Universal Package File: `SayaBeats-v1.3.0-universal-release-signed.apk` (76.4 MB)
